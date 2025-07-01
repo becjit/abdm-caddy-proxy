@@ -1,26 +1,25 @@
 :80
 
-# ---------- Health ----------
-respond /health "OK\n" {
-    header Content-Type text/plain
-}
+# ------------- health -------------
+respond /health "OK\n"
+# (default content-type is text/plain already)
 
-# ---------- ABDM proxy ----------
+# ----------- ABDM proxy -----------
 handle_path /abdm/* {
-    reverse_proxy https://abhasbx.abdm.gov.in {
-        header_up Host abhasbx.abdm.gov.in
-        header_up X-Real-IP {remote_host}
-    }
+	# forward to sandbox over HTTP/2
+	reverse_proxy https://abhasbx.abdm.gov.in {
+		header_up Host abhasbx.abdm.gov.in
+		header_up X-Real-IP {remote_host}
+	}
 
-    header {
-        Access-Control-Allow-Origin  *
-        Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-        Access-Control-Allow-Headers "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,REQUEST-ID,TIMESTAMP"
-    }
+	# CORS
+	header {
+		Access-Control-Allow-Origin  "*"
+		Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+		Access-Control-Allow-Headers "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,REQUEST-ID,TIMESTAMP"
+	}
 }
 
-# ---------- Root ----------
-respond / "ABDM Proxy – use /abdm/ prefix\n" {
-    header Content-Type text/plain
-}
+# ------------- root ---------------
+respond / "ABDM Proxy – use /abdm/ prefix\n"
 
