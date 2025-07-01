@@ -1,18 +1,26 @@
-:80                    # inside the container
+:80
 
-respond /health 200 { "OK\n" }
-
-handle_path /abdm/* {
-    reverse_proxy https://abhasbx.abdm.gov.in {
-        header_up  Host  abhasbx.abdm.gov.in
-        header_up  X-Real-IP {remote_host}
-    }
-
-    # CORS (adjust as you like)
-    header Access-Control-Allow-Origin  *
-    header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-    header Access-Control-Allow-Headers "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,REQUEST-ID,TIMESTAMP"
+# ---------- Health ----------
+respond /health "OK\n" {
+    header Content-Type text/plain
 }
 
-respond / 200 { "ABDM Proxy – use /abdm/ prefix\n" }
+# ---------- ABDM proxy ----------
+handle_path /abdm/* {
+    reverse_proxy https://abhasbx.abdm.gov.in {
+        header_up Host abhasbx.abdm.gov.in
+        header_up X-Real-IP {remote_host}
+    }
+
+    header {
+        Access-Control-Allow-Origin  *
+        Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+        Access-Control-Allow-Headers "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,REQUEST-ID,TIMESTAMP"
+    }
+}
+
+# ---------- Root ----------
+respond / "ABDM Proxy – use /abdm/ prefix\n" {
+    header Content-Type text/plain
+}
 
